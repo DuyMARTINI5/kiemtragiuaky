@@ -2,20 +2,22 @@
 session_start();
 include 'includes/db_connect.php';
 
-$MaSV = '0123456789'; // tạm thời dùng mã SV cố định, có thể thay bằng mã SV từ phiên đăng nhập.
+$MaSV = $_SESSION['MaSV']; // lấy mã SV từ phiên đăng nhập
 $NgayDK = date('Y-m-d');
 
-mysqli_query($conn, "INSERT INTO DangKy (NgayDK, MaSV) VALUES ('$NgayDK', '$MaSV')");
+// thêm vào bảng DangKy
+mysqli_query($conn, "INSERT INTO DangKy (NgayDK, MaSV) VALUES ('$NgayDK','$MaSV')");
 $MaDK = mysqli_insert_id($conn);
 
+// thêm vào ChiTietDangKy và cập nhật số lượng trong bảng HocPhan
 foreach ($_SESSION['cart'] as $maHP) {
-    mysqli_query($conn, "INSERT INTO ChiTietDangKy (MaDK, MaHP) VALUES ('$MaDK', '$maHP')");
-    // cập nhật số lượng học phần
-    mysqli_query($conn, "UPDATE HocPhan SET SoLuong=SoLuong-1 WHERE MaHP='$maHP'");
+    mysqli_query($conn, "INSERT INTO ChiTietDangKy (MaDK, MaHP) VALUES ('$MaDK','$maHP')");
+    mysqli_query($conn, "UPDATE HocPhan SET SoLuong = SoLuong - 1 WHERE MaHP='$maHP'");
 }
 
-// Xóa giỏ hàng sau khi đăng ký xong
+// xóa giỏ hàng sau khi lưu thành công
 unset($_SESSION['cart']);
 
-echo "<script>alert('Đăng ký thành công!'); window.location='view_enrollment.php';</script>";
+echo "<script>alert('Đăng ký học phần thành công!'); window.location='view_enrollment.php';</script>";
 ?>
+// câu 6
